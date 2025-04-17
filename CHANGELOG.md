@@ -1,8 +1,5 @@
 # Changelog
 
-
-# Changelog
-
 ## [0.0.4-dev] - 2025-04-17
 
 ### 🔒 Stability & Hardening

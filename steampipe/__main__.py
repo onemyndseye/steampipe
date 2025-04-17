@@ -1,23 +1,25 @@
 import argparse
-from . import watcher, processor
+import sys
+
+from . import watcher, processor, config
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Steampipe: Upload Steam clips to YouTube")
-    parser.add_argument("--dry-run", action="store_true", help="Simulate actions only")
-    parser.add_argument("--upload", action="store_true", help="Upload to YouTube")
-    parser.add_argument("--privacy", default="unlisted", help="YouTube video privacy")
-    parser.add_argument("--prefix", default="", help="Prefix for the video title")
-    parser.add_argument("--watch", action="store_true", help="Watch folder for new clips")
+    print("Steampipe starting...")
+
+    parser = argparse.ArgumentParser(description="Steampipe: Upload Steam clips to YouTube.")
+    parser.add_argument("--watch", action="store_true", help="Watch for new clips")
+    parser.add_argument("--upload", action="store_true", help="Upload to YouTube after processing")
+    parser.add_argument("--privacy", default="unlisted", choices=["public", "unlisted", "private"],
+                        help="YouTube video privacy setting")
+    parser.add_argument("--dry-run", action="store_true", help="Simulate the process without making changes")
     args = parser.parse_args()
 
     if args.watch:
-        watcher.start_watching(args)
+        watcher.run(args)
     else:
-        clip_path = processor.get_latest_clip_folder()
-        if clip_path:
-            watcher.process_clip(clip_path, args)
-        else:
-            print("No clip folders found.")
+        print("Use --watch to start monitoring clip folder.")
 
-if __name__ == "__main__":
-    main()
+
+# Ensure main() runs when invoked as: python3 -m steampipe
+main()
