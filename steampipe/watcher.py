@@ -1,68 +1,84 @@
 import os
+import time
 import threading
-from datetime import datetime
+import datetime
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from . import config, processor
+
+from . import processor
+from .config import Config
 
 
-class ClipEventHandler(FileSystemEventHandler):
+class ClipHandler(FileSystemEventHandler):
     def __init__(self, args):
-        super().__init__()
         self.args = args
-        self.handled = set()
+        super().__init__()
 
     def on_created(self, event):
-        if event.is_directory and "clip_" in os.path.basename(event.src_path):
-            if event.src_path in self.handled:
-                return
-            self.handled.add(event.src_path)
-            threading.Thread(target=self.process_clip, args=(event.src_path,)).start()
+        if event.is_directory and "clip_" in event.src_path:
+            print(f"[Watcher] New clip folder detected: {event.src_path}")
+            threading.Thread(
+                target=self.worker_thread, args=(event.src_path,)
+            ).start()
 
-    def process_clip(self, clip_path):
-        print(f"[Watcher] New clip folder detected: {clip_path}")
-        if not processor.wait_for_final_chunks(clip_path):
-            print("⏳ Timed out waiting for final chunks.")
-            return
-
+    def worker_thread(self, clip_path):
+        print(f"🎬 Processing: {clip_path}")
         app_id, timestamp = processor.parse_metadata(clip_path)
         if not app_id or not timestamp:
-            print("⚠️  Could not parse metadata.")
+            print("⚠️  Failed to parse metadata.")
             return
 
-        title = processor.get_game_title(app_id)
-        dt_str = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        full_title = f"{title} – {dt_str}"
-        out_path = f"/tmp/{title.replace('™', '').replace(' ', '_')}_{dt_str.replace(':', '-').replace(' ', '_')}.mp4"
+        title = processor.lookup_game_title(app_id)
+        ts = datetime.datetime.fromtimestamp(timestamp)
+        full_title = f"{title} – {ts.strftime('%Y-%m-%d %H:%M:%S')}"
+        safe_title = title.replace('™', '').replace(' ', '_')
+        output = f"/tmp/{safe_title}_{ts.strftime('%Y-%m-%d_%H-%M-%S')}.mp4"
 
         print(f"▶ Title:      {full_title}")
-        print(f"📼 Output:     {out_path}")
+        print(f"📼 Output:     {output}")
 
-        mpd_path = processor.get_clip_mpd(clip_path)
-        if not mpd_path:
-            print("⚠️  Could not locate .mpd file.")
+        if not processor.wait_for_final_chunks(clip_path):
+            print("⏳ Clip not ready — skipping.")
             return
 
-        if processor.remux_clip(mpd_path, out_path, dry_run=self.args.dry_run):
+        try:
+            video_dir = os.path.join(clip_path, "video")
+            subfolder = next(
+                d for d in os.listdir(video_dir) if d.startswith("bg_")
+            )
+            session_mpd = os.path.join(video_dir, subfolder, "session.mpd")
+            processor.remux_clip(session_mpd, output)
             print("✅ Remux complete.")
+
             if self.args.upload:
-                success = processor.upload_to_youtube(out_path, full_title, f"Clip recorded on {dt_str}",
-                                                      privacy=self.args.privacy, dry_run=self.args.dry_run)
+                print("🚀 Uploading to YouTube...")
+                success = processor.upload_and_log(
+                    output,
+                    full_title,
+                    ts.strftime("Recorded on %B %d, %Y"),
+                    self.args.privacy,
+                    self.args.dry_run,
+                )
                 if success:
                     print("🎉 Upload succeeded.")
-        else:
-            print("❌ Remux failed.")
+                else:
+                    print("❌ Upload failed.")
+
+        except Exception as e:
+            print(f"❌ Processing error: {e}")
 
 
 def run(args):
-    print(f"👀 Watching folder: {config.CLIPS_DIR}")
-    event_handler = ClipEventHandler(args)
+    clips_dir = os.path.expanduser(Config.CLIPS_DIR)
+    print(f"👀 Watching folder: {clips_dir}")
+    event_handler = ClipHandler(args)
     observer = Observer()
-    observer.schedule(event_handler, config.CLIPS_DIR, recursive=True)
+    observer.schedule(event_handler, clips_dir, recursive=True)
     observer.start()
+
     try:
         while True:
-            pass
+            time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
