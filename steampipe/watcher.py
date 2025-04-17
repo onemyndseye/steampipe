@@ -1,103 +1,115 @@
 import os
 import time
+import threading
 import re
-from threading import Thread
-from queue import Queue
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from . import processor
+from .processor import (
+    get_latest_clip_folder,
+    parse_metadata,
+    get_game_title,
+    remux_clip,
+    upload_video
+)
 from .config import CLIP_DIR
 
-clip_queue = Queue()
 
-def wait_for_path(path, timeout=6, check_file=None):
-    start = time.time()
-    while time.time() - start < timeout:
-        if os.path.exists(path):
-            if check_file:
-                try:
-                    if any(f.endswith(check_file) for f in os.listdir(path)):
-                        return True
-                except FileNotFoundError:
-                    pass
-            else:
-                return True
-        time.sleep(0.2)
-    return False
-
-def process_clip(clip_path, args):
-    print(f"🎬 Processing: {clip_path}")
-
-    timeline_dir = os.path.join(clip_path, "timelines")
-    if not wait_for_path(timeline_dir, timeout=6, check_file=".json"):
-        print(f"❌ Timelines directory or .json not ready: {timeline_dir}")
-        return
-
-    app_id, timestamp = processor.parse_metadata(clip_path)
-    if not app_id or not timestamp:
-        print("❌ Failed to extract metadata.")
-        return
-
-    game_title = processor.get_game_title(app_id)
-    safe_title = re.sub(r"[^\w\s\-_]", "", game_title)
-    safe_timestamp = timestamp.replace(":", "-").replace(" ", "_")
-    out_path = f"/tmp/{safe_title}_{safe_timestamp}.mp4"
-
-    full_title = f"{args.prefix}{game_title} – {timestamp}"
-    description = f"Automatically captured via Steam background recording.\n\nGame: {game_title}\nTime: {timestamp}"
-
-    print(f"▶️ Title:      {full_title}")
-    print(f"🕒 Timestamp:  {timestamp}")
-    print(f"📼 Output:     {out_path}")
-
-    if not processor.wait_for_final_chunks(clip_path):
-        print("⚠️ Clip chunks did not stabilize in time. Skipping.")
-        return
-
-    if processor.remux_clip(clip_path, out_path, args.dry_run):
-        print("✅ Remux complete.")
-        if args.upload:
-            print("🚀 Uploading to YouTube...")
-            if processor.upload(clip_path, out_path, full_title, description, args.privacy, args.dry_run):
-                print("🎉 Upload succeeded.")
-            else:
-                print("❌ Upload failed.")
-    else:
-        print("❌ Remux failed.")
-
-def worker(args):
-    while True:
-        clip_path = clip_queue.get()
-        if clip_path is None:
-            break
-        process_clip(clip_path, args)
-        clip_queue.task_done()
-
-class ClipEventHandler(FileSystemEventHandler):
+class ClipWatcher(FileSystemEventHandler):
     def __init__(self, args):
         self.args = args
 
     def on_created(self, event):
         if event.is_directory and os.path.basename(event.src_path).startswith("clip_"):
             print(f"[Watcher] New clip folder detected: {event.src_path}")
-            clip_queue.put(event.src_path)
+            threading.Thread(target=process_clip, args=(event.src_path, self.args)).start()
 
-def watch_clips(args):
+
+def wait_for_final_chunks(clip_path, timeout=15, idle_window=2):
+    """Wait for session.mpd and confirm .m4s count, size, and first fragment existence."""
+    start_time = time.time()
+    last_total_size = 0
+    last_count = 0
+    idle_start = None
+    session_path = None
+
+    while time.time() - start_time < timeout:
+        found_session = False
+        total_size = 0
+        chunk_count = 0
+
+        for root, _, files in os.walk(clip_path):
+            if "session.mpd" in files:
+                found_session = True
+                session_path = os.path.join(root, "session.mpd")
+            for f in files:
+                if f.endswith(".m4s"):
+                    chunk_count += 1
+                    try:
+                        total_size += os.path.getsize(os.path.join(root, f))
+                    except FileNotFoundError:
+                        continue
+
+        if found_session:
+            # Check for first playable fragment
+            if session_path and os.path.exists(session_path):
+                with open(session_path, "r", encoding="utf-8") as f:
+                    mpd_contents = f.read()
+                match = re.search(r'chunk-stream0-(\d+)\.m4s', mpd_contents)
+                if match:
+                    first_chunk = f"chunk-stream0-{match.group(1)}.m4s"
+                    chunk_found = any(
+                        first_chunk in files
+                        for root, _, files in os.walk(clip_path)
+                    )
+                    if not chunk_found:
+                        time.sleep(0.5)
+                        continue
+
+            if total_size != last_total_size or chunk_count != last_count:
+                last_total_size = total_size
+                last_count = chunk_count
+                idle_start = time.time()
+            elif idle_start and (time.time() - idle_start >= idle_window):
+                return True
+
+        time.sleep(0.5)
+
+    return False
+
+
+def process_clip(clip_path, args):
+    if not wait_for_final_chunks(clip_path):
+        print(f"⚠️ Clip not ready or timed out: {clip_path}")
+        return
+
+    app_id, timestamp = parse_metadata(clip_path)
+    game_title = get_game_title(app_id)
+    clean_title = game_title.replace("™", "").strip()
+    formatted_time = timestamp.replace(":", "-").replace(" ", "_") if timestamp else "unknown"
+    out_path = f"/tmp/{clean_title}_{formatted_time}.mp4"
+
+    print(f"🎬 Processing: {clip_path}")
+    print(f"▶ Title:      {game_title} – {timestamp}")
+    print(f"📼 Output:     {out_path}")
+
+    if remux_clip(clip_path, out_path, dry_run=args.dry_run):
+        print("✅ Remux complete.")
+        if args.upload:
+            upload_video(out_path, game_title, f"Captured on {timestamp}", args.privacy, dry_run=args.dry_run)
+    else:
+        print("❌ Remux failed.")
+
+
+def start_watching(args):
     print(f"👀 Watching folder: {CLIP_DIR}")
+    event_handler = ClipWatcher(args)
     observer = Observer()
-    handler = ClipEventHandler(args)
-    observer.schedule(handler, CLIP_DIR, recursive=False)
-
-    thread = Thread(target=worker, args=(args,), daemon=True)
-    thread.start()
-
+    observer.schedule(event_handler, str(CLIP_DIR), recursive=False)
     observer.start()
+
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n🛑 Watcher stopped.")
         observer.stop()
-        clip_queue.put(None)
     observer.join()
-    thread.join()

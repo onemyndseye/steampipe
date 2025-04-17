@@ -11,7 +11,7 @@ def main():
     args = parser.parse_args()
 
     if args.watch:
-        watcher.watch_clips(args)
+        watcher.start_watching(args)
     else:
         clip_path = processor.get_latest_clip_folder()
         if clip_path:

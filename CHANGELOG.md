@@ -1,5 +1,28 @@
 # Changelog
 
+
+# Changelog
+
+## [0.0.4-dev] - 2025-04-17
+
+### 🔒 Stability & Hardening
+- Added robust `wait_for_final_chunks()` logic to avoid premature remux
+- Now waits for `.m4s` fragments to fully write before processing
+- Validates the **first chunk referenced in `session.mpd`** exists before remuxing
+
+### Logic Improvements
+- Improved session readiness checks using `.m4s` count and total size + idle timer
+- Smart fallback if metadata or game title cannot be resolved
+
+### Bugfixes
+- Fixed silent failures from partial remuxes due to early folder access
+- Corrected timing race conditions during Steam background clip saving
+- Cleaned up threading behavior around `watchdog` event dispatch
+
+
+---
+
+
 ## [v0.0.3-dev] - 2025-04-17
 
 ### 🚀 Added
