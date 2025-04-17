@@ -1,9 +1,8 @@
 # Steampipe
 
-**Steampipe** is a Linux automation tool that remuxes and uploads Steam gameplay clips to YouTube.  
+Steampipeis a automation tool that remuxes and uploads Steam gameplay clips to YouTube.  
 It monitors your Steam recording folder, converts new clips to `.mp4`, and sends them directly to your channel.
 
-> “Never miss a moment. Never touch a video editor.”
 
 ## Features
 
@@ -17,7 +16,7 @@ It monitors your Steam recording folder, converts new clips to `.mp4`, and sends
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/steampipe.git
+git clone https://github.com/onemyndseye/steampipe.git
 cd steampipe
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
