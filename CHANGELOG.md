@@ -1,5 +1,32 @@
 # Changelog
 
+
+## [v0.0.5-dev] - 2025-04-17
+### 🔄 Changed
+- Major refactor of configuration handling:
+  - Removed `config.py` from the codebase.
+  - `--watch` flag now **requires a clips directory path**.
+- `Config.APP_ID_DB` replaced with a **persistent disk-backed app ID cache** (`appid_cache.json`).
+  - Prevents redundant Steam API calls and improves performance.
+
+### ✨ Added
+- New module: `appid_cache.py`
+  - Handles transparent caching and lookups for Steam game titles by App ID.
+
+### 🧹 Clean-up & Maintenance
+- All source files now pass `flake8` compliance (PEP8 styling).
+- Removed unused imports and tightened long lines across codebase.
+- Verified compatibility with GitHub Actions CI.
+
+### ✅ Verified Behavior
+- Full pipeline verified (remux → title resolve → upload) up to YouTube's upload quota.
+- Live test runs confirmed new structure is working and cleanly isolated.
+
+---
+
+
+
+
 ## [0.0.4-dev] - 2025-04-17
 
 ### 🔒 Stability & Hardening

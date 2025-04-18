@@ -1,88 +1,112 @@
+# steampipe/processor.py
+
 import os
+import re
 import json
-import subprocess
 import time
+import shutil
+import subprocess
 from datetime import datetime
 
-from .config import Config
 from .uploader import upload_video
+from .appid_cache import get_title
 
 
-def parse_metadata(clip_path):
-    timeline_path = os.path.join(clip_path, "video")
-    json_file = next(
-        (f for f in os.listdir(timeline_path) if f.endswith(".json")),
-        None
-    )
+def parse_metadata(clip_dir):
+    timeline_path = os.path.join(clip_dir, "video")
+    json_file = next((f for f in os.listdir(timeline_path) if f.endswith(".json")), None)
     if not json_file:
-        raise FileNotFoundError("Timeline metadata JSON not found.")
+        raise FileNotFoundError("No timeline JSON found in video/")
 
     json_path = os.path.join(timeline_path, json_file)
-    with open(json_path, "r", encoding="utf-8") as f:
+    with open(json_path, "r") as f:
         data = json.load(f)
 
-    app_id = data.get("AppID", "unknown")
-    time_seconds = int(data.get("StartTime", 0))
-    timestamp = datetime.fromtimestamp(time_seconds)
+    app_id = str(data.get("AppID", "Unknown"))
+    timestamp_unix = data.get("Timestamp", 0)
+    timestamp = datetime.fromtimestamp(timestamp_unix)
     return app_id, timestamp
 
 
-def get_game_title(app_id):
-    titles_db = Config.APP_ID_DB
-    return titles_db.get(str(app_id), "Unknown Game")
-
-
-def build_output_path(title, timestamp):
-    safe_title = title.replace("™", "").replace(":", "").replace("/", "-")
-    filename = f"{safe_title}_{timestamp.strftime('%Y-%m-%d_%H-%M-%S')}.mp4"
-    return os.path.join("/tmp", filename)
-
-
-def remux_clip(clip_path, output_path, dry_run=False):
-    session_path = os.path.join(
-        clip_path, "video", os.listdir(os.path.join(clip_path, "video"))[0],
-        "session.mpd"
-    )
-
-    cmd = [
-        "ffmpeg", "-i", session_path,
-        "-c", "copy", output_path
+def get_latest_clip_folder(clips_dir):
+    folders = [
+        os.path.join(clips_dir, d)
+        for d in os.listdir(clips_dir)
+        if os.path.isdir(os.path.join(clips_dir, d))
     ]
+    if not folders:
+        return None
+    return max(folders, key=os.path.getmtime)
 
-    if dry_run:
-        print("[DRY RUN] Would run:", " ".join(cmd))
-        return True
 
-    try:
-        subprocess.run(cmd, check=True)
-        print("✅ Remux complete.")
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Remux failed:\n{e}")
+def wait_for_final_chunks(clip_dir, timeout=30):
+    video_dir = os.path.join(clip_dir, "video")
+    session_file = None
+
+    for _ in range(timeout):
+        session_files = [
+            f for f in os.listdir(video_dir)
+            if f.startswith("bg_") and os.path.isdir(os.path.join(video_dir, f))
+        ]
+        if not session_files:
+            time.sleep(1)
+            continue
+
+        session_path = os.path.join(video_dir, session_files[0])
+        manifest_path = os.path.join(session_path, "session.mpd")
+        if os.path.exists(manifest_path):
+            session_file = manifest_path
+            break
+        time.sleep(1)
+
+    if not session_file:
+        print("❌ session.mpd not found.")
+    return session_file
+
+
+def remux_clip(clip_dir, output_path):
+    manifest = wait_for_final_chunks(clip_dir)
+    if not manifest:
         return False
 
-    return True
+    try:
+        subprocess.run(
+            ["ffmpeg", "-i", manifest, "-c", "copy", output_path],
+            check=True
+        )
+        print("✅ Remux complete.")
+        return True
+    except subprocess.CalledProcessError:
+        print(f"❌ Remux failed:\nffmpeg -i {manifest} -c copy {output_path}")
+        return False
 
 
-def upload_to_youtube(filepath, title, description, privacy, dry_run=False):
+def upload(clip_dir, output_path, title, description, privacy, dry_run):
     if dry_run:
-        print("[DRY RUN] Would upload to YouTube:", filepath)
+        print(f"[DRY RUN] Would run: ffmpeg -i {clip_dir} -c copy {output_path}")
+        print("\n✅ Export complete:")
+        print(f"▶  Title:      {title}")
+        print(f"🕒  Timestamp:  {description}")
+        print(f"📼  Output:     {output_path}")
+        print("🧪 Dry run mode active — no files were written.")
         return True
 
+    print("🚀 Uploading to YouTube...")
     try:
-        video_url = upload_video(filepath, title, description, privacy)
-        print("🎬 Upload complete:", video_url)
+        video_url = upload_video(output_path, title, description, privacy)
+        print(f"🎬 Upload complete: {video_url}")
+        print("🎉 Upload succeeded.")
         return True
     except Exception as e:
         print(f"❌ YouTube API error: {e}")
         return False
 
 
-def wait_for_final_chunks(clip_path, timeout=15):
-    video_path = os.path.join(clip_path, "video")
-    for _ in range(timeout):
-        if os.path.isdir(video_path) and any(
-            "session.mpd" in f for f in os.listdir(video_path)
-        ):
-            return True
-        time.sleep(1)
-    return False
+def resolve_app_title(app_id):
+    # fallback resolution, this could be an actual Steam API call
+    return f"Unknown Game (AppID {app_id})"
+
+
+def get_clip_title(app_id, timestamp):
+    title = get_title(app_id, resolve_app_title)
+    return f"{title} – {timestamp.strftime('%Y-%m-%d %H:%M:%S')}"

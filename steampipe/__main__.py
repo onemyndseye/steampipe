@@ -1,6 +1,6 @@
 import argparse
 
-from . import watcher
+from steampipe import watcher
 
 
 def main():
@@ -11,8 +11,8 @@ def main():
     )
     parser.add_argument(
         "--watch",
-        action="store_true",
-        help="Watch for new clips",
+        metavar="DIR",
+        help="Watch the given directory for new clips",
     )
     parser.add_argument(
         "--upload",
@@ -30,12 +30,13 @@ def main():
         action="store_true",
         help="Simulate the process without making changes",
     )
+
     args = parser.parse_args()
 
     if args.watch:
         watcher.run(args)
     else:
-        print("Use --watch to start monitoring clip folder.")
+        print("Use --watch DIR to start monitoring a clip folder.")
 
 
 if __name__ == "__main__":
