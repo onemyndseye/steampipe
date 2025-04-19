@@ -1,23 +1,18 @@
+# steampipe/__main__.py
+
 import argparse
-from . import watcher, processor
+from steampipe import watcher
 
 def main():
-    parser = argparse.ArgumentParser(description="Steampipe: Upload Steam clips to YouTube")
-    parser.add_argument("--dry-run", action="store_true", help="Simulate actions only")
-    parser.add_argument("--upload", action="store_true", help="Upload to YouTube")
-    parser.add_argument("--privacy", default="unlisted", help="YouTube video privacy")
-    parser.add_argument("--prefix", default="", help="Prefix for the video title")
-    parser.add_argument("--watch", action="store_true", help="Watch folder for new clips")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="SteamPipe - Steam Clip Watcher and Uploader")
+    parser.add_argument("--watch", type=str, required=True, help="Directory to monitor for new clips")
+    parser.add_argument("--upload", action="store_true", help="Upload videos to YouTube")
+    parser.add_argument("--privacy", default="unlisted", choices=["public", "unlisted", "private"], help="Privacy setting for uploads")
+    parser.add_argument("--dry-run", action="store_true", help="Simulate actions without making changes")
+    parser.add_argument("--prefix", default="", help="Prefix to prepend to the video title")
 
-    if args.watch:
-        watcher.watch_clips(args)
-    else:
-        clip_path = processor.get_latest_clip_folder()
-        if clip_path:
-            watcher.process_clip(clip_path, args)
-        else:
-            print("No clip folders found.")
+    args = parser.parse_args()
+    watcher.watch_clips(args)
 
 if __name__ == "__main__":
     main()

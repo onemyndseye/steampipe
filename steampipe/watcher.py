@@ -1,3 +1,5 @@
+# steampipe/watcher.py
+
 import os
 import time
 import re
@@ -5,8 +7,8 @@ from threading import Thread
 from queue import Queue
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
 from . import processor
-from .config import CLIP_DIR
 
 clip_queue = Queue()
 
@@ -26,7 +28,7 @@ def wait_for_path(path, timeout=6, check_file=None):
     return False
 
 def process_clip(clip_path, args):
-    print(f"🎬 Processing: {clip_path}")
+    print(f"  Processing: {clip_path}")
 
     timeline_dir = os.path.join(clip_path, "timelines")
     if not wait_for_path(timeline_dir, timeout=6, check_file=".json"):
@@ -46,9 +48,9 @@ def process_clip(clip_path, args):
     full_title = f"{args.prefix}{game_title} – {timestamp}"
     description = f"Automatically captured via Steam background recording.\n\nGame: {game_title}\nTime: {timestamp}"
 
-    print(f"▶️ Title:      {full_title}")
-    print(f"🕒 Timestamp:  {timestamp}")
-    print(f"📼 Output:     {out_path}")
+    print(f"▶️ Title: {full_title}")
+    print(f"   Timestamp: {timestamp}")
+    print(f"   Output: {out_path}")
 
     if not processor.wait_for_final_chunks(clip_path):
         print("⚠️ Clip chunks did not stabilize in time. Skipping.")
@@ -56,10 +58,11 @@ def process_clip(clip_path, args):
 
     if processor.remux_clip(clip_path, out_path, args.dry_run):
         print("✅ Remux complete.")
+
         if args.upload:
-            print("🚀 Uploading to YouTube...")
+            print("   Uploading to YouTube...")
             if processor.upload(clip_path, out_path, full_title, description, args.privacy, args.dry_run):
-                print("🎉 Upload succeeded.")
+                print("   Upload succeeded.")
             else:
                 print("❌ Upload failed.")
     else:
@@ -83,10 +86,10 @@ class ClipEventHandler(FileSystemEventHandler):
             clip_queue.put(event.src_path)
 
 def watch_clips(args):
-    print(f"👀 Watching folder: {CLIP_DIR}")
+    print(f"🔍 Watching folder: {args.watch}")
     observer = Observer()
     handler = ClipEventHandler(args)
-    observer.schedule(handler, CLIP_DIR, recursive=False)
+    observer.schedule(handler, args.watch, recursive=False)
 
     thread = Thread(target=worker, args=(args,), daemon=True)
     thread.start()
@@ -99,5 +102,6 @@ def watch_clips(args):
         print("\n🛑 Watcher stopped.")
         observer.stop()
         clip_queue.put(None)
+
     observer.join()
     thread.join()

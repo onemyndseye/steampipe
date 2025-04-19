@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.5-dev] - 2025-4-19
+-- Moved CLIPS_DIR out of config.py to required arg of --watch (steampipe --watch /path/to/clips)
+
+
+
 ## [v0.0.3-dev] - 2025-04-17
 
 ### 🚀 Added
