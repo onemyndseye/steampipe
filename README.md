@@ -1,6 +1,6 @@
 # Steampipe
 
-Steampipeis a automation tool that remuxes and uploads Steam gameplay clips to YouTube.  
+Steampipe is a automation tool that remuxes and uploads Steam gameplay clips to YouTube.  
 It monitors your Steam recording folder, converts new clips to `.mp4`, and sends them directly to your channel.
 
 
@@ -25,14 +25,14 @@ pip install -e .
 ## Usage
 
 ```bash
-steampipe --watch --upload --privacy unlisted
+steampipe --watch /path/to/clips --upload --privacy unlisted
 ```
 
 ### Options
 
 | Option         | Description                                 |
 |----------------|---------------------------------------------|
-| `--watch`      | Monitor for new clips in real-time          |
+| `--watch DIR'  | Monitor for new clips in real-time          |
 | `--upload`     | Upload to YouTube                           |
 | `--dry-run`    | Show actions without doing them             |
 | `--privacy`    | `public`, `unlisted`, or `private`          |
