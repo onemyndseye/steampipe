@@ -36,7 +36,7 @@ steampipe --watch /path/to/clips --upload --privacy unlisted
 | `--dry-run`    | Show actions without doing them               |
 | `--privacy`    | `public`, `unlisted`, or `private`            |
 | `--prefix`     | Add prefix to uploaded video title            |
-| `--sync-delay  | How often to poll for changes in seconds (30) |
+| `--sync-delay` | How often to poll for changes in seconds (30) |
 | `--proc-delay` | Delay in seconds before processing (30)       |
 
 ## Configuration
