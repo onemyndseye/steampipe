@@ -1,7 +1,25 @@
 # Changelog
 
+
+## [0.0.6-dev] - 2025-04-19
+
+### Changed
+- Replaced real-time `watchdog` logic with polling loop
+- Added CLI args `--sync-delay` and `--proc-delay`
+- All clips are now processed only if `.steampiped` marker file is missing
+- Removed complex timing/race heuristics
+- Greatly improved stability for large or delayed clips
+
+### Added
+- `.steampiped` marker written on successful upload (or simulated in dry-run)
+
+### Removed
+- No longer uses filesystem event detection (watchdog)
+
+
 ## [v0.0.5-dev] - 2025-4-19
 -- Moved CLIPS_DIR out of config.py to required arg of --watch (steampipe --watch /path/to/clips)
+
 
 
 

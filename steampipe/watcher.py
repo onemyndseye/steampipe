@@ -3,37 +3,26 @@
 import os
 import time
 import re
-from threading import Thread
-from queue import Queue
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from datetime import datetime
+from pathlib import Path
 
 from . import processor
 
-clip_queue = Queue()
+def is_clip_ready(path):
+    timelines = path / "timelines"
+    if not timelines.exists() or not timelines.is_dir():
+        return False
+    if not any(f.suffix == ".json" for f in timelines.iterdir()):
+        return False
+    return True
 
-def wait_for_path(path, timeout=6, check_file=None):
-    start = time.time()
-    while time.time() - start < timeout:
-        if os.path.exists(path):
-            if check_file:
-                try:
-                    if any(f.endswith(check_file) for f in os.listdir(path)):
-                        return True
-                except FileNotFoundError:
-                    pass
-            else:
-                return True
-        time.sleep(0.2)
-    return False
+def mark_as_processed(path):
+    marker = path / ".steampiped"
+    with marker.open("w") as f:
+        f.write(f"Uploaded on {datetime.now().isoformat()}\n")
 
 def process_clip(clip_path, args):
     print(f"  Processing: {clip_path}")
-
-    timeline_dir = os.path.join(clip_path, "timelines")
-    if not wait_for_path(timeline_dir, timeout=6, check_file=".json"):
-        print(f"❌ Timelines directory or .json not ready: {timeline_dir}")
-        return
 
     app_id, timestamp = processor.parse_metadata(clip_path)
     if not app_id or not timestamp:
@@ -68,40 +57,28 @@ def process_clip(clip_path, args):
     else:
         print("❌ Remux failed.")
 
-def worker(args):
-    while True:
-        clip_path = clip_queue.get()
-        if clip_path is None:
-            break
-        process_clip(clip_path, args)
-        clip_queue.task_done()
-
-class ClipEventHandler(FileSystemEventHandler):
-    def __init__(self, args):
-        self.args = args
-
-    def on_created(self, event):
-        if event.is_directory and os.path.basename(event.src_path).startswith("clip_"):
-            print(f"[Watcher] New clip folder detected: {event.src_path}")
-            clip_queue.put(event.src_path)
-
 def watch_clips(args):
-    print(f"🔍 Watching folder: {args.watch}")
-    observer = Observer()
-    handler = ClipEventHandler(args)
-    observer.schedule(handler, args.watch, recursive=False)
+    clips_dir = Path(args.watch).expanduser().resolve()
+    print(f"[watcher] Scanning: {clips_dir}")
+    print(f"[watcher] Every {args.sync_delay}s | Process delay: {args.proc_delay}s")
 
-    thread = Thread(target=worker, args=(args,), daemon=True)
-    thread.start()
+    while True:
+        for sub in sorted(clips_dir.iterdir()):
+            if not sub.is_dir():
+                continue
+            if not sub.name.startswith("clip_"):
+                continue
+            if (sub / ".steampiped").exists():
+                continue
 
-    observer.start()
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\n🛑 Watcher stopped.")
-        observer.stop()
-        clip_queue.put(None)
+            print(f"[watcher] Found new clip: {sub}")
+            time.sleep(args.proc_delay)
 
-    observer.join()
-    thread.join()
+            if not is_clip_ready(sub):
+                print(f"[watcher] Clip not ready: {sub}")
+                continue
+
+            process_clip(sub, args)
+            mark_as_processed(sub)
+
+        time.sleep(args.sync_delay)
