@@ -6,18 +6,18 @@ It monitors your Steam recording folder, converts new clips to `.mp4`, and sends
 
 ## Features
 
+- ✅ Syncs clips directory directly to Youtube
 - ✅ Remux `.m4s` + `.mpd` chunks using `ffmpeg`
 - ✅ Game title + timestamp metadata
 - ✅ Uploads to YouTube via OAuth
 - ✅ Dry-run support
-- ✅ Handles multiple clips in queue
 
 ## Installation
 
 ```bash
 git clone https://github.com/onemyndseye/steampipe.git
 cd steampipe
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m  .venv && source .venv/bin/activate
 pip install -e .
 ```
 
