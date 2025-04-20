@@ -6,7 +6,6 @@ It monitors your Steam recording folder, converts new clips to `.mp4`, and sends
 
 ## Features
 
-- ✅ Automatic folder watcher
 - ✅ Remux `.m4s` + `.mpd` chunks using `ffmpeg`
 - ✅ Game title + timestamp metadata
 - ✅ Uploads to YouTube via OAuth
@@ -30,13 +29,15 @@ steampipe --watch /path/to/clips --upload --privacy unlisted
 
 ### Options
 
-| Option         | Description                                 |
-|----------------|---------------------------------------------|
-| `--watch DIR'  | Monitor for new clips in real-time          |
-| `--upload`     | Upload to YouTube                           |
-| `--dry-run`    | Show actions without doing them             |
-| `--privacy`    | `public`, `unlisted`, or `private`          |
-| `--prefix`     | Add prefix to uploaded video titles         |
+| Option         | Description                                   |
+|----------------|-----------------------------------------------|
+| `--watch DIR'  | Monitor for new clips in real-time            |
+| `--upload`     | Upload to YouTube                             |
+| `--dry-run`    | Show actions without doing them               |
+| `--privacy`    | `public`, `unlisted`, or `private`            |
+| `--prefix`     | Add prefix to uploaded video title            |
+| `--sync-delay  | How often to poll for changes in seconds (30) |
+| `--proc-delay` | Delay in seconds before processing (30)       |
 
 ## Configuration
 
