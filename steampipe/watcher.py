@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from . import processor
+from .discord import send_discord_notification
 
 def is_clip_ready(path):
     timelines = path / "timelines"
@@ -50,8 +51,19 @@ def process_clip(clip_path, args):
 
         if args.upload:
             print("   Uploading to YouTube...")
-            if processor.upload(clip_path, out_path, full_title, description, args.privacy, args.dry_run):
-                print("   Upload succeeded.")
+            video_url = processor.upload(
+                clip_path, out_path, full_title, description, args.privacy, args.dry_run
+            )
+
+            if video_url:
+                print(f"   Upload succeeded: {video_url}")
+                if args.discord and not args.dry_run:
+                    send_discord_notification(
+                        webhook_url=args.discord,
+                        title=full_title,
+                        video_url=video_url
+                    )
+                    print(f"[discord] Notification sent for: {full_title}")
             else:
                 print("❌ Upload failed.")
     else:

@@ -5,16 +5,7 @@ import subprocess
 import requests
 import time
 from datetime import datetime
-from .config import CLIP_DIR
 from .uploader import upload_video
-
-def get_latest_clip_folder():
-    try:
-        subdirs = [os.path.join(CLIP_DIR, d) for d in os.listdir(CLIP_DIR)
-                   if os.path.isdir(os.path.join(CLIP_DIR, d))]
-        return max(subdirs, key=os.path.getmtime) if subdirs else None
-    except FileNotFoundError:
-        return None
 
 def parse_metadata(clip_path):
     folder_name = os.path.basename(clip_path)
@@ -54,7 +45,10 @@ def remux_clip(clip_path, output_path, dry_run=False):
     return False
 
 def upload(clip_path, out_path, title, desc, privacy, dry_run=False):
-    return upload_video(out_path, title, desc, privacy=privacy, dry_run=dry_run)
+    video_id = upload_video(out_path, title, desc, privacy=privacy, dry_run=dry_run)
+    if video_id:
+        return f"https://youtu.be/{video_id}"
+    return None
 
 def wait_for_final_chunks(clip_path, timeout=10, stable_secs=3):
     video_dir = None

@@ -28,7 +28,7 @@ def get_authenticated_service():
 def upload_video(filepath, title, description, privacy="unlisted", dry_run=False):
     if dry_run:
         print(f"[DRY RUN] Would upload '{filepath}' with title: '{title}' and privacy: '{privacy}'")
-        return True
+        return "DRY_RUN_FAKE_ID"
 
     service = get_authenticated_service()
 
@@ -53,5 +53,6 @@ def upload_video(filepath, title, description, privacy="unlisted", dry_run=False
         if status:
             print(f"Uploading: {int(status.progress() * 100)}%")
 
-    print(f"🎬 Upload complete: https://youtube.com/watch?v={response['id']}")
-    return True
+    video_id = response["id"]
+    print(f"🎬 Upload complete: https://youtube.com/watch?v={video_id}")
+    return video_id

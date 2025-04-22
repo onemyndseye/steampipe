@@ -11,6 +11,7 @@ It monitors your Steam recording folder, converts new clips to `.mp4`, and sends
 - ✅ Game title + timestamp metadata
 - ✅ Uploads to YouTube via OAuth
 - ✅ Dry-run support
+- ✅ Optional Discord webhook notifications via `--discord`  
 
 ## Installation
 

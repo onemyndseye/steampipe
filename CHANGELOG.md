@@ -1,6 +1,19 @@
 # Changelog
 
 
+## [0.0.7-dev] - 2025-04-20
+
+### Added
+- `--discord <URL>` CLI argument for sending upload notifications to Discord
+- Discord messages with game title and YouTube link
+- YouTube link printed in CLI log after successful upload
+
+### Changed
+- `upload_video()` now returns the actual YouTube video ID
+- `processor.upload()` now wraps YouTube ID as a proper short URL (`youtu.be/<id>`)
+
+
+
 ## [0.0.6-dev] - 2025-04-19
 
 ### Changed
