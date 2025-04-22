@@ -4,14 +4,7 @@ import requests
 
 def send_discord_notification(webhook_url, title, video_url):
     data = {
-        "embeds": [
-            {
-                "title": "🎬 Clip Uploaded",
-                "description": f"**{title}**\n[📺 Watch on YouTube]({video_url})",
-                "color": 0x1abc9c,
-                "footer": {"text": "SteamPipe"},
-            }
-        ]
+        "content": video_url
     }
 
     try:

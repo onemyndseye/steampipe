@@ -55,16 +55,14 @@ def process_clip(clip_path, args):
                 clip_path, out_path, full_title, description, args.privacy, args.dry_run
             )
 
-            if video_url:
-                print(f"   Upload succeeded: {video_url}")
-                if args.discord and not args.dry_run:
-                    send_discord_notification(
-                        webhook_url=args.discord,
-                        title=full_title,
-                        video_url=video_url
-                    )
-                    print(f"[discord] Notification sent for: {full_title}")
-            else:
+            if video_url and args.discord and not args.dry_run:
+                send_discord_notification(
+                    webhook_url=args.discord,
+                    title=full_title,
+                    video_url=video_url
+                )
+                print(f"[discord] Notification sent for: {full_title}")
+            elif not video_url:
                 print("❌ Upload failed.")
     else:
         print("❌ Remux failed.")
