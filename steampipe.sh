@@ -12,13 +12,9 @@ DISCORD_WEBHOOK="https://discord.com/api/webhooks/your_webhook_here"
 
 
 # --- End User Configuration ---
-
-
 INSTALL_DIR="$HOME/.local/share/steampipe"
 REPO_URL="https://github.com/onemyndseye/steampipe.git"
 VENV_DIR="$INSTALL_DIR/.venv"
-
-
 
 
 
@@ -28,22 +24,34 @@ if [ ! -d "$INSTALL_DIR/.git" ]; then
   git clone "$REPO_URL" "$INSTALL_DIR"
 fi
 
-# --- Pull latest updates (optional) ---
 cd "$INSTALL_DIR" || exit 1
-git pull origin main
+
+# --- Pull and detect update ---
+echo "[update] Checking for updates..."
+UPDATE_OUTPUT=$(git pull origin main)
+if [[ "$UPDATE_OUTPUT" == *"Already up to date."* ]]; then
+  UPDATED=false
+  echo "[update] Repo is up to date."
+else
+  UPDATED=true
+  echo "[update] Repo has changed."
+fi
 
 # --- Virtual Environment Setup ---
 if [ ! -d "$VENV_DIR" ]; then
   echo "[setup] Creating virtual environment in $VENV_DIR..."
   python3 -m venv "$VENV_DIR"
+  UPDATED=true
 fi
 
 source "$VENV_DIR/bin/activate"
 
-# --- Install Python Dependencies ---
-echo "[setup] Installing dependencies from requirements.txt..."
-pip install --upgrade pip
-pip install -r requirements.txt
+# --- Install requirements only if needed ---
+if [ "$UPDATED" = true ]; then
+  echo "[setup] Installing dependencies from requirements.txt..."
+  pip install --upgrade pip
+  pip install -r requirements.txt
+fi
 
 # --- Launch Steampipe ---
 echo "[launch] Running Steampipe..."
