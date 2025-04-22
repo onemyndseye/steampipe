@@ -33,7 +33,10 @@ def process_clip(clip_path, args):
     game_title = processor.get_game_title(app_id)
     safe_title = re.sub(r"[^\w\s\-_]", "", game_title)
     safe_timestamp = timestamp.replace(":", "-").replace(" ", "_")
-    out_path = f"/tmp/{safe_title}_{safe_timestamp}.mp4"
+
+    tmp_dir = Path("/tmp/steampipe")
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    out_path = tmp_dir / f"{safe_title}_{safe_timestamp}.mp4"
 
     full_title = f"{args.prefix}{game_title} – {timestamp}"
     description = f"Automatically captured via Steam background recording.\n\nGame: {game_title}\nTime: {timestamp}"
