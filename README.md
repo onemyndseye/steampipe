@@ -20,7 +20,19 @@ git clone https://github.com/onemyndseye/steampipe.git
 cd steampipe
 python3 -m  .venv && source .venv/bin/activate
 pip install -e .
+
 ```
+
+## Alt insallation
+```bash
+wget -O steampipe.sh https://raw.githubusercontent.com/onemyndseye/steampipe/main/steampipe.sh
+chmod +x steampipe.sh
+./steampipe.sh
+
+```
+
+
+
 
 ## Usage
 
