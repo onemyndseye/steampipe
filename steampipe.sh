@@ -19,13 +19,16 @@ REPO_URL="https://github.com/onemyndseye/steampipe.git"
 VENV_DIR="$INSTALL_DIR/.venv"
 
 
+
+
+
 # --- First-time Setup ---
 if [ ! -d "$INSTALL_DIR/.git" ]; then
   echo "[install] Cloning Steampipe repo into $INSTALL_DIR..."
   git clone "$REPO_URL" "$INSTALL_DIR"
 fi
 
-# --- Update repo (optional — remove these two lines if you want to pin to a version) ---
+# --- Pull latest updates (optional) ---
 cd "$INSTALL_DIR" || exit 1
 git pull origin main
 
@@ -38,7 +41,7 @@ fi
 source "$VENV_DIR/bin/activate"
 
 # --- Install Python Dependencies ---
-echo "[setup] Installing Python dependencies from requirements.txt..."
+echo "[setup] Installing dependencies from requirements.txt..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
@@ -51,4 +54,5 @@ python3 -m steampipe \
   --discord "$DISCORD_WEBHOOK" \
   --sync-delay "$SYNC_DELAY" \
   --proc-delay "$PROC_DELAY" \
-  --prefix "$PREFIX"
+  --prefix "$PREFIX" \
+  "$@"
