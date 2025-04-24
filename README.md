@@ -7,7 +7,7 @@ It monitors your Steam recording folder, converts new clips to `.mp4`, and sends
 ## Features
 
 - ✅ Syncs clips directory directly to Youtube
-- ✅ Remux `.m4s` + `.mpd` chunks using `ffmpeg`
+- ✅ Remux `.m4s` + `.mpd` chunks using `gpac/MP4Box`
 - ✅ Game title + timestamp metadata
 - ✅ Uploads to YouTube via OAuth
 - ✅ Dry-run support
