@@ -5,7 +5,9 @@ import subprocess
 import requests
 import time
 from datetime import datetime
+
 from .uploader import upload_video
+
 
 def parse_metadata(clip_path):
     folder_name = os.path.basename(clip_path)
@@ -14,7 +16,6 @@ def parse_metadata(clip_path):
 
     timeline_path = os.path.join(clip_path, "timelines")
     json_file = next((f for f in os.listdir(timeline_path) if f.endswith(".json")), None)
-
     if not json_file:
         return app_id, None
 
@@ -22,6 +23,7 @@ def parse_metadata(clip_path):
         data = json.load(f)
         timestamp = datetime.fromtimestamp(int(data["daterecorded"]))
         return app_id, timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
 
 def get_game_title(app_id):
     try:
@@ -33,22 +35,40 @@ def get_game_title(app_id):
         print(f"⚠️ Failed to fetch game title from Steam API: {e}")
         return "Unknown Game"
 
+
 def remux_clip(clip_path, output_path, dry_run=False):
     for root, dirs, files in os.walk(clip_path):
         if "session.mpd" in files:
             mpd = os.path.join(root, "session.mpd")
             if dry_run:
-                print(f"[DRY RUN] ffmpeg -i {mpd} -c copy {output_path}")
+                print(f"[DRY RUN] MP4Box -dash 3000 -profile dashavc264:onDemand -out {output_path} {mpd}")
                 return True
-            subprocess.run(["ffmpeg", "-y", "-i", mpd, "-c", "copy", output_path])
-            return True
+
+            try:
+                subprocess.run(
+                    [
+                        "MP4Box",
+                        "-dash", "3000",
+                        "-profile", "dashavc264:onDemand",
+                        "-out", output_path,
+                        mpd,
+                    ],
+                    check=True
+                )
+                return True
+            except subprocess.CalledProcessError as e:
+                print(f"[remux] MP4Box failed: {e}")
+                return False
+
     return False
+
 
 def upload(clip_path, out_path, title, desc, privacy, dry_run=False):
     video_id = upload_video(out_path, title, desc, privacy=privacy, dry_run=dry_run)
     if video_id:
         return f"https://youtu.be/{video_id}"
     return None
+
 
 def wait_for_final_chunks(clip_path, timeout=10, stable_secs=3):
     video_dir = None
@@ -67,7 +87,6 @@ def wait_for_final_chunks(clip_path, timeout=10, stable_secs=3):
     while time.time() - start_time < timeout:
         m4s_files = [f for f in os.listdir(video_dir) if f.endswith(".m4s")]
         current_count = len(m4s_files)
-
         if current_count == last_count:
             stable_count += 1
         else:

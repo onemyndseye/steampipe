@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [0.0.8-dev] - 2025-04-23
+
+### Changed
+- dropped ffmpeg in favor of gpac/mp4box to squash 4sec bug forever.
+
+
+
+
 ## [0.0.7-dev] - 2025-04-20
 
 ### Added
