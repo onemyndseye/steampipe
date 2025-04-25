@@ -4,6 +4,7 @@ import requests
 
 AVATAR_URL = "https://raw.githubusercontent.com/onemyndseye/steampipe/main/steampipe/assets/steampipe-icon.png"
 
+
 def send_discord_notification(webhook_url, title, video_url):
     data = {
         "content": video_url,

@@ -9,6 +9,7 @@ SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 CREDENTIALS_FILE = os.path.expanduser("~/.config/steampipe/credentials.json")
 TOKEN_FILE = os.path.expanduser("~/.config/steampipe/token.pickle")
 
+
 def get_authenticated_service():
     creds = None
     if os.path.exists(TOKEN_FILE):
@@ -24,6 +25,7 @@ def get_authenticated_service():
         with open(TOKEN_FILE, "wb") as token:
             pickle.dump(creds, token)
     return build("youtube", "v3", credentials=creds)
+
 
 def upload_video(filepath, title, description, privacy="unlisted", dry_run=False):
     if dry_run:

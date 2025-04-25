@@ -1,6 +1,5 @@
 # steampipe/watcher.py
 
-import os
 import time
 import re
 from datetime import datetime
@@ -8,6 +7,7 @@ from pathlib import Path
 
 from . import processor
 from .discord import send_discord_notification
+
 
 def is_clip_ready(path):
     timelines = path / "timelines"
@@ -17,10 +17,12 @@ def is_clip_ready(path):
         return False
     return True
 
+
 def mark_as_processed(path):
     marker = path / ".steampiped"
     with marker.open("w") as f:
         f.write(f"Uploaded on {datetime.now().isoformat()}\n")
+
 
 def process_clip(clip_path, args):
     print(f"  Processing: {clip_path}")
@@ -69,6 +71,7 @@ def process_clip(clip_path, args):
                 print("❌ Upload failed.")
     else:
         print("❌ Remux failed.")
+
 
 def watch_clips(args):
     clips_dir = Path(args.watch).expanduser().resolve()
