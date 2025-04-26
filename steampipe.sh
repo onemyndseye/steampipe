@@ -3,8 +3,6 @@
 # --- User Configuration ---
 STEAM_CLIPS_DIR="/path/to/clips"
 PRIVACY="unlisted"
-SYNC_DELAY=30
-PROC_DELAY=30
 PREFIX="[STEAMPIPE] "
 DISCORD_WEBHOOK="https://discord.com/api/webhooks/your_webhook_here"
 

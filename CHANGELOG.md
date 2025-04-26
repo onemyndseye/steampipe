@@ -1,6 +1,21 @@
 # Changelog
 
 
+## [0.0.9-dev] - 2025-04-25
+
+### Changed
+- Moved to a cron-friendly config.   Steampipe will now interate through the given clips
+  directory and act on new clips and then exit clean.  Run once from CLI or setup CRON
+  job to handle scheduling.
+- `--watch` renamed to `--clips`.
+- Removed `--sync-delay` and `--proc-delay` options (no longer needed).
+- `watch_clips()` function renamed to `find_clips()`.
+- Updated README to reflect new flow and CLI usage.
+- Improved Discord notification formatting with embedded thumbnails and styled messages.
+- Minor internal code cleanups for path handling and mark
+
+
+
 ## [0.0.8-dev] - 2025-04-23
 
 ### Changed

@@ -1,6 +1,5 @@
 # steampipe/watcher.py
 
-import time
 import re
 from datetime import datetime
 from pathlib import Path
@@ -70,32 +69,32 @@ def process_clip(clip_path, args):
                 print(f"[discord] Notification sent for: {full_title}")
             elif not video_url:
                 print("❌ Upload failed.")
+
+        mark_as_processed(clip_path)
     else:
         print("❌ Remux failed.")
 
 
-def watch_clips(args):
-    clips_dir = Path(args.watch).expanduser().resolve()
-    print(f"[watcher] Scanning: {clips_dir}")
-    print(f"[watcher] Every {args.sync_delay}s | Process delay: {args.proc_delay}s")
+def find_clips(args):
+    clips_dir = Path(args.clips).expanduser().resolve()
+    print(f"[finder] Scanning: {clips_dir}")
 
-    while True:
-        for sub in sorted(clips_dir.iterdir()):
-            if not sub.is_dir():
-                continue
-            if not sub.name.startswith("clip_"):
-                continue
-            if (sub / ".steampiped").exists():
-                continue
+    found = False
 
-            print(f"[watcher] Found new clip: {sub}")
-            time.sleep(args.proc_delay)
+    for sub in sorted(clips_dir.iterdir()):
+        if not sub.is_dir():
+            continue
+        if not sub.name.startswith("clip_"):
+            continue
+        if (sub / ".steampiped").exists():
+            continue
 
-            if not is_clip_ready(sub):
-                print(f"[watcher] Clip not ready: {sub}")
-                continue
+        if not is_clip_ready(sub):
+            print(f"[finder] Clip not ready: {sub}")
+            continue
 
-            process_clip(sub, args)
-            mark_as_processed(sub)
+        found = True
+        process_clip(sub, args)
 
-        time.sleep(args.sync_delay)
+    if not found:
+        print("[finder] No new clips found. Exiting.")
