@@ -13,25 +13,26 @@ def send_discord_notification(webhook_url, title, video_url, clip_path):
     data = None
 
     payload = {
-        "username": "SteamPipe",
+        "username": "Steampipe",
         "avatar_url": AVATAR_URL,
         "embeds": [
             {
+                "description": "🔔 New gameplay clip uploaded!",
                 "title": f"▶️ {title}",
                 "url": video_url,
-                "description": "🔔 New gameplay clip uploaded!\n\nCheck it out now.",
                 "color": 0x00FFFF,
-                "image": {},
-                "footer": {
-                    "text": "Auto-uploaded via SteamPipe"
-                }
+                "image": {
+                    "url": "attachment://thumbnail.jpg"
+                },
+                #"footer": {
+                #    "text": "Uploaded by Steampipe\nhttps://github.com/onemyndseye/steampipe"
+                #}
             }
         ]
     }
 
     if os.path.exists(thumbnail_path):
         files = {"file": open(thumbnail_path, "rb")}
-        payload["embeds"][0]["image"]["url"] = "attachment://thumbnail.jpg"
 
     data = {"payload_json": json.dumps(payload)}
 
