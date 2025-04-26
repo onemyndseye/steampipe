@@ -22,9 +22,6 @@ def send_discord_notification(webhook_url, title, video_url, clip_path, username
                 "image": {
                     "url": "attachment://thumbnail.jpg"
                 },
-                #"footer": {
-                #    "text": "Uploaded by Steampipe"
-                #}
             }
         ]
     }
