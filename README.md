@@ -37,7 +37,7 @@ chmod +x steampipe.sh
 ## Usage
 
 ```bash
-steampipe --watch /path/to/clips --upload --privacy unlisted
+steampipe --clips /path/to/clips --upload --privacy unlisted
 ```
 
 ### Options
