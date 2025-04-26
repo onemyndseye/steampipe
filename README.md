@@ -42,13 +42,15 @@ steampipe --clips /path/to/clips --upload --privacy unlisted
 
 ### Options
 
-| Option         | Description                                   |
-|----------------|-----------------------------------------------|
-| `--clips DIR`  | Location for new clips                        |
-| `--upload`     | Upload to YouTube                             |
-| `--dry-run`    | Show actions without doing them               |
-| `--privacy`    | `public`, `unlisted`, or `private`            |
-| `--prefix`     | Add prefix to uploaded video title            |
+| Option          | Description                                   |
+|-----------------|-----------------------------------------------|
+| `--clips DIR`   | Location for new clips                        |
+| `--upload`      | Upload to YouTube                             |
+| `--dry-run`     | Show actions without doing them               |
+| `--privacy`     | `public`, `unlisted`, or `private`            |
+| `--prefix`      | Add prefix to uploaded video title            |
+| `--discord URL` | Discord webhook to notify                     |
+| `--discord-name`| Name for Discord bot (Default: Steampipe)     |
 
 ## Configuration
 

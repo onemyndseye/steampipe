@@ -1,5 +1,3 @@
-# steampipe/watcher.py
-
 import re
 from datetime import datetime
 from pathlib import Path
@@ -64,7 +62,8 @@ def process_clip(clip_path, args):
                     webhook_url=args.discord,
                     title=full_title,
                     video_url=video_url,
-                    clip_path=clip_path
+                    clip_path=clip_path,
+                    username=args.discord_name
                 )
                 print(f"[discord] Notification sent for: {full_title}")
             elif not video_url:

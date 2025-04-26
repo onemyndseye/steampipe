@@ -1,5 +1,3 @@
-# steampipe/discord.py
-
 import requests
 import os
 import json
@@ -7,13 +5,13 @@ import json
 AVATAR_URL = "https://raw.githubusercontent.com/onemyndseye/steampipe/main/steampipe/assets/steampipe-icon.png"
 
 
-def send_discord_notification(webhook_url, title, video_url, clip_path):
+def send_discord_notification(webhook_url, title, video_url, clip_path, username="Steampipe"):
     thumbnail_path = os.path.join(clip_path, "thumbnail.jpg")
     files = None
     data = None
 
     payload = {
-        "username": "Steampipe",
+        "username": username,
         "avatar_url": AVATAR_URL,
         "embeds": [
             {
@@ -25,7 +23,7 @@ def send_discord_notification(webhook_url, title, video_url, clip_path):
                     "url": "attachment://thumbnail.jpg"
                 },
                 #"footer": {
-                #    "text": "Uploaded by Steampipe\nhttps://github.com/onemyndseye/steampipe"
+                #    "text": "Uploaded by Steampipe"
                 #}
             }
         ]

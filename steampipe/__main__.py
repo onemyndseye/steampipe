@@ -1,5 +1,3 @@
-# steampipe/__main__.py
-
 import argparse
 from steampipe import watcher
 
@@ -17,6 +15,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Simulates remux/upload without making changes")
     parser.add_argument("--prefix", default="", help="Prefix to prepend to the video title")
     parser.add_argument("--discord", type=str, help="Discord webhook URL for notifications")
+    parser.add_argument("--discord-name", default="Steampipe", help="Override Discord webhook bot name")
 
     args = parser.parse_args()
     watcher.find_clips(args)

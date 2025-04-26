@@ -5,7 +5,7 @@ STEAM_CLIPS_DIR="/path/to/clips"
 PRIVACY="unlisted"
 PREFIX="[STEAMPIPE] "
 DISCORD_WEBHOOK="https://discord.com/api/webhooks/your_webhook_here"
-
+DISCORD_NAME="Steampipe"
 
 
 
@@ -54,11 +54,10 @@ fi
 # --- Launch Steampipe ---
 echo "[launch] Running Steampipe..."
 python3 -m steampipe \
-  --watch "$STEAM_CLIPS_DIR" \
+  --clips "$STEAM_CLIPS_DIR" \
   --upload \
   --privacy "$PRIVACY" \
   --discord "$DISCORD_WEBHOOK" \
-  --sync-delay "$SYNC_DELAY" \
-  --proc-delay "$PROC_DELAY" \
+  --discord-name "$DISCORD_NAME" \
   --prefix "$PREFIX" \
   "$@"
