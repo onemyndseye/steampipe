@@ -1,7 +1,7 @@
 # Steampipe
 
 Steampipe is a automation tool that remuxes and uploads Steam gameplay clips to YouTube.  
-It monitors your Steam recording folder, converts new clips to `.mp4`, and sends them directly to your channel.
+It scans your Steam recording folder, converts new clips to `.mp4`, and sends them directly to your channel.
 
 
 ## Features
