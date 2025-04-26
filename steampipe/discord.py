@@ -17,7 +17,7 @@ def send_discord_notification(webhook_url, title, video_url, clip_path):
         "avatar_url": AVATAR_URL,
         "embeds": [
             {
-                "title": f"🔧 {title}",
+                "title": f"▶️ {title}",
                 "url": video_url,
                 "description": "🔔 New gameplay clip uploaded!\n\nCheck it out now.",
                 "color": 0x00FFFF,
