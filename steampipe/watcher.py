@@ -64,7 +64,8 @@ def process_clip(clip_path, args):
                 send_discord_notification(
                     webhook_url=args.discord,
                     title=full_title,
-                    video_url=video_url
+                    video_url=video_url,
+                    clip_path=clip_path
                 )
                 print(f"[discord] Notification sent for: {full_title}")
             elif not video_url:
