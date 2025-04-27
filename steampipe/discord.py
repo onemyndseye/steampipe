@@ -7,9 +7,6 @@ AVATAR_URL = "https://raw.githubusercontent.com/onemyndseye/steampipe/main/steam
 
 def send_discord_notification(webhook_url, title, video_url, clip_path, username="Steampipe"):
     thumbnail_path = os.path.join(clip_path, "thumbnail.jpg")
-    files = None
-    data = None
-
     payload = {
         "username": username,
         "avatar_url": AVATAR_URL,
