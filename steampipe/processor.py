@@ -64,7 +64,7 @@ def remux_clip(clip_path, output_path, dry_run=False):
 
 
 def upload(clip_path, out_path, title, desc, privacy, dry_run=False):
-    video_id = upload_video(out_path, title, desc, privacy=privacy, dry_run=dry_run)
+    video_id = upload_video(out_path, title, desc, clip_path=clip_path, privacy=privacy, dry_run=dry_run)
     if video_id:
         return f"https://youtu.be/{video_id}"
     return None

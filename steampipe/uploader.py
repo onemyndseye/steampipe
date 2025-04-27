@@ -27,7 +27,7 @@ def get_authenticated_service():
     return build("youtube", "v3", credentials=creds)
 
 
-def upload_video(filepath, title, description, privacy="unlisted", dry_run=False):
+def upload_video(filepath, title, description, clip_path, privacy="unlisted", dry_run=False):
     if dry_run:
         print(f"[DRY RUN] Would upload '{filepath}' with title: '{title}' and privacy: '{privacy}'")
         return "DRY_RUN_FAKE_ID"
@@ -57,4 +57,25 @@ def upload_video(filepath, title, description, privacy="unlisted", dry_run=False
 
     video_id = response["id"]
     print(f"🎬 Upload complete: https://youtube.com/watch?v={video_id}")
+
+    # Set thumbnail after upload
+    thumbnail_path = os.path.join(clip_path, "thumbnail.jpg")
+    if os.path.exists(thumbnail_path):
+        set_thumbnail(video_id, thumbnail_path)
+    else:
+        print(f"No thumbnail.jpg found in clip folder {clip_path}, skipping thumbnail upload.")
+
     return video_id
+
+
+def set_thumbnail(video_id, thumbnail_path):
+    service = get_authenticated_service()
+
+    media = MediaFileUpload(thumbnail_path, mimetype="image/jpeg")
+    request = service.thumbnails().set(
+        videoId=video_id,
+        media_body=media
+    )
+    response = request.execute()
+    print(f"🖼️ Thumbnail uploaded for video {video_id}")
+    return response
