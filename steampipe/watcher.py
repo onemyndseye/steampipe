@@ -44,10 +44,6 @@ def process_clip(clip_path, args):
     print(f"   Timestamp: {timestamp}")
     print(f"   Output: {out_path}")
 
-    if not processor.wait_for_final_chunks(clip_path):
-        print("⚠️ Clip chunks did not stabilize in time. Skipping.")
-        return
-
     if processor.remux_clip(clip_path, out_path, args.dry_run):
         print("✅ Remux complete.")
 

@@ -3,7 +3,6 @@ import json
 import re
 import subprocess
 import requests
-import time
 from datetime import datetime
 
 from .uploader import upload_video
@@ -68,34 +67,3 @@ def upload(clip_path, out_path, title, desc, privacy, dry_run=False):
     if video_id:
         return f"https://youtu.be/{video_id}"
     return None
-
-
-def wait_for_final_chunks(clip_path, timeout=10, stable_secs=3):
-    video_dir = None
-    for root, dirs, files in os.walk(clip_path):
-        if "session.mpd" in files:
-            video_dir = root
-            break
-
-    if not video_dir:
-        return False
-
-    last_count = -1
-    stable_count = 0
-    start_time = time.time()
-
-    while time.time() - start_time < timeout:
-        m4s_files = [f for f in os.listdir(video_dir) if f.endswith(".m4s")]
-        current_count = len(m4s_files)
-        if current_count == last_count:
-            stable_count += 1
-        else:
-            stable_count = 0
-
-        if stable_count >= stable_secs:
-            return True
-
-        last_count = current_count
-        time.sleep(1)
-
-    return False
