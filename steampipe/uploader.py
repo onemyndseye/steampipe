@@ -6,8 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
-CREDENTIALS_FILE = os.path.expanduser("~/.config/steampipe/credentials.json")
-TOKEN_FILE = os.path.expanduser("~/.config/steampipe/token.pickle")
+CREDENTIALS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "credentials", "credentials.json"))
+TOKEN_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "credentials", "token.pickle"))
 
 
 def get_authenticated_service():

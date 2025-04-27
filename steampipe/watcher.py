@@ -62,7 +62,8 @@ def process_clip(clip_path, args):
                     title=full_title,
                     video_url=video_url,
                     clip_path=clip_path,
-                    username=args.discord_name
+                    username=args.discord_name,
+                    description=args.discord_desc
                 )
                 print(f"[discord] Notification sent for: {full_title}")
             elif not video_url:

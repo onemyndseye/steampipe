@@ -16,6 +16,7 @@ def main():
     parser.add_argument("--prefix", default="", help="Prefix to prepend to the video title")
     parser.add_argument("--discord", type=str, help="Discord webhook URL for notifications")
     parser.add_argument("--discord-name", default="Steampipe", help="Override Discord webhook bot name")
+    parser.add_argument("--discord-desc", default="🔔 New gameplay clip uploaded!", help="Override Discord embed description text")
 
     args = parser.parse_args()
     watcher.find_clips(args)

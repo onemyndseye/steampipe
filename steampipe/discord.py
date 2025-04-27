@@ -5,14 +5,16 @@ import json
 AVATAR_URL = "https://raw.githubusercontent.com/onemyndseye/steampipe/main/steampipe/assets/steampipe-icon.png"
 
 
-def send_discord_notification(webhook_url, title, video_url, clip_path, username="Steampipe"):
+def send_discord_notification(webhook_url, title, video_url, clip_path, username="Steampipe", description="🔔 New gameplay clip uploaded!"):
     thumbnail_path = os.path.join(clip_path, "thumbnail.jpg")
+    files = None
+
     payload = {
         "username": username,
         "avatar_url": AVATAR_URL,
         "embeds": [
             {
-                "description": "🔔 New gameplay clip uploaded!",
+                "description": description,
                 "title": f"▶️ {title}",
                 "url": video_url,
                 "color": 0x00FFFF,

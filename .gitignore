@@ -3,5 +3,5 @@ __pycache__/
 .venv/
 .env
 *.log
-token.pickle
-credentials.json
+credentials/token.pickle
+credentials/credentials.json
