@@ -1,9 +1,14 @@
 import re
+import shutil
 from datetime import datetime
 from pathlib import Path
 
 from . import processor
 from .discord import send_discord_notification
+
+# Create temp directory at module load
+TMP_DIR = Path("/tmp/steampipe")
+TMP_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def is_clip_ready(path):
@@ -33,9 +38,7 @@ def process_clip(clip_path, args):
     safe_title = re.sub(r"[^\w\s\-_]", "", game_title)
     safe_timestamp = timestamp.replace(":", "-").replace(" ", "_")
 
-    tmp_dir = Path("/tmp/steampipe")
-    tmp_dir.mkdir(parents=True, exist_ok=True)
-    out_path = tmp_dir / f"{safe_title}_{safe_timestamp}.mp4"
+    out_path = TMP_DIR / f"{safe_title}_{safe_timestamp}.mp4"
 
     full_title = f"{args.prefix}{game_title} – {timestamp}"
     description = f"Automatically captured via Steam background recording.\n\nGame: {game_title}\nTime: {timestamp}"
@@ -93,3 +96,8 @@ def find_clips(args):
 
     if not found:
         print("[finder] No new clips found. Exiting.")
+
+    # Clean up temp directory after all processing
+    if TMP_DIR.exists():
+        shutil.rmtree(TMP_DIR)
+        print("[finder] Temp directory cleaned up.")
