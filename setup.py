@@ -2,14 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name="steampipe",
-    version="0.0.2-dev",
+    version="0.0.9-dev",
     description="Remux and upload Steam video clips to YouTube",
     author="onemyndseye",
     author_email="you@example.com",
     packages=find_packages(),
     install_requires=[
         "requests",
-        "watchdog",
         "google-api-python-client",
         "google-auth-httplib2",
         "google-auth-oauthlib"
