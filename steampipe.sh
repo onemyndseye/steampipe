@@ -5,7 +5,7 @@ STEAM_CLIPS_DIR="/path/to/clips"
 PRIVACY="unlisted"
 PREFIX="[STEAMPIPE] "
 DISCORD_WEBHOOK="https://discord.com/api/webhooks/your_webhook_here"
-DISCORD_NAME="Steampipe"
+DISCORD_NAME="Steampipe: My Clips"
 
 
 

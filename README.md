@@ -51,12 +51,13 @@ steampipe --clips /path/to/clips --upload --privacy unlisted
 | `--prefix`      | Add prefix to uploaded video title            |
 | `--discord URL` | Discord webhook to notify                     |
 | `--discord-name`| Name for Discord bot (Default: Steampipe)     |
+| `--discord-desc`| Set description for discord post              |
 
 ## Configuration
 
 - Steam clips must be recorded via **Steam’s built-in background recorder**
 - Place your YouTube `credentials.json` file here:  
-  `~/.config/steampipe/credentials.json`
+  `./credentials/credentials.json`
 
 ## License
 
