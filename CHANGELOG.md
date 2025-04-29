@@ -1,5 +1,21 @@
 # Changelog
 
+### Added
+  - Implemented Steam App List **caching system** (`steamappid.json`).
+  - Caches Steam game titles at startup.
+  - Automatically refreshes cache every **7 days**. Delete or use --force-refresh to rebuild
+  - New CLI flag `--force-refresh` allows manual cache reset.   
+  - Improved CLI options (`--force-refresh`) for better control.
+  - Added robust error handling for Steam API failures and cache corruption.
+  - Added --discord-desc and --discord-name to customize discord notifys
+### Changed
+  - `get_game_title(app_id)` now reads from local cache instead of fetching every call.
+  - Steampipe now runs in cron friendly, single pass mode.
+  - Discord thumbnail and Youtube thumbnail should match Steams generated thumbnail.
+
+---
+
+
 
 ## [0.0.9-dev] - 2025-04-25
 

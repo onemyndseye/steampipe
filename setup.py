@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="steampipe",
-    version="0.0.95-dev",
+    version="0.1.0",
     description="Remux and upload Steam video clips to YouTube",
     author="onemyndseye",
     author_email="you@example.com",

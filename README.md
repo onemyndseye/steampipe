@@ -32,8 +32,6 @@ chmod +x steampipe.sh
 ```
 
 
-
-
 ## Usage
 
 ```bash
@@ -45,7 +43,6 @@ steampipe --clips /path/to/clips --upload --privacy unlisted
 | Option          | Description                                   |
 |-----------------|-----------------------------------------------|
 | `--clips DIR`   | Location for new clips                        |
-| `--upload`      | Upload to YouTube                             |
 | `--dry-run`     | Show actions without doing them               |
 | `--privacy`     | `public`, `unlisted`, or `private`            |
 | `--prefix`      | Add prefix to uploaded video title            |
