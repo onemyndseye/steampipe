@@ -21,7 +21,7 @@ NEED_UPDATE=$(git status |grep "branch is behind")
 if [ -n "$NEED_UPDATE" ]; then
   # Needs update
   echo "[update] Updating Steampipe ..."
-  git pull origin mail >/dev/null 2>&1
+  git pull origin main >/dev/null 2>&1
   UPDATED=true
 fi
 }
