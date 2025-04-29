@@ -9,11 +9,12 @@ DISCORD_NAME="Steampipe: My Clips"
 
 # --- End User Configuration ---
 
+
 do_update() {
 
 # Check if update is needed
 echo "[update] Checking for updates..."
-git fetch
+git fetch >/dev/null 2>&1
 
 
 NEED_UPDATE=$(git status |grep "branch is behind")
@@ -55,10 +56,10 @@ fi
 
 
 # --- Virtual Environment Setup ---
+echo "[setup] Initializing virtual environment ..."
 source "$VENV_DIR/bin/activate"
 
 if [ "$UPDATED" = true ]; then
-  echo "[setup] Installing dependencies from requirements.txt..."
   pip install --upgrade pip >/dev/null 2>&1
   pip install --upgrade -r requirements.txt >/dev/null 2>&1
 fi
