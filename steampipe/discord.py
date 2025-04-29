@@ -1,11 +1,22 @@
+# File: discord.py
+
 import requests
 import os
 import json
 
-AVATAR_URL = "https://raw.githubusercontent.com/onemyndseye/steampipe/main/steampipe/assets/steampipe-icon.png"
+AVATAR_URL = (
+    "https://raw.githubusercontent.com/onemyndseye/steampipe/main/steampipe/assets/steampipe-icon.png"
+)
 
 
-def send_discord_notification(webhook_url, title, video_url, clip_path, username="Steampipe", description="🔔 New gameplay clip uploaded!"):
+def send_discord_notification(
+    webhook_url,
+    title,
+    video_url,
+    clip_path,
+    username="Steampipe",
+    description="🔔 New gameplay clip uploaded!",
+):
     thumbnail_path = os.path.join(clip_path, "thumbnail.jpg")
     files = None
 
@@ -18,11 +29,9 @@ def send_discord_notification(webhook_url, title, video_url, clip_path, username
                 "title": f"▶️ {title}",
                 "url": video_url,
                 "color": 0x00FFFF,
-                "image": {
-                    "url": "attachment://thumbnail.jpg"
-                },
+                "image": {"url": "attachment://thumbnail.jpg"},
             }
-        ]
+        ],
     }
 
     if os.path.exists(thumbnail_path):
