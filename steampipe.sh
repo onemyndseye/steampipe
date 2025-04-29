@@ -12,6 +12,11 @@ DISCORD_NAME="Steampipe: My Clips"
 do_update() {
 
 # Check if update is needed
+echo "[update] Checking for updates..."
+git fetch
+
+
+# Check if update is needed
 NEED_UPDATE=$(git status |grep "branch is behind")
 if [ -n "$NEED_UPDATE" ]; then
   # Needs update
