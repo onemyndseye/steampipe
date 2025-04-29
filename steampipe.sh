@@ -16,11 +16,11 @@ echo "[update] Checking for updates..."
 git fetch
 
 
-# Check if update is needed
 NEED_UPDATE=$(git status |grep "branch is behind")
 if [ -n "$NEED_UPDATE" ]; then
   # Needs update
-  git pull origin main
+  echo "[update] Updating Steampipe ..."
+  git pull origin mail >/dev/null 2>&1
   UPDATED=true
 fi
 }
@@ -59,8 +59,8 @@ source "$VENV_DIR/bin/activate"
 
 if [ "$UPDATED" = true ]; then
   echo "[setup] Installing dependencies from requirements.txt..."
-  pip install --upgrade pip
-  pip install --upgrade -r requirements.txt
+  pip install --upgrade pip >/dev/null 2>&1
+  pip install --upgrade -r requirements.txt >/dev/null 2>&1
 fi
 
 
@@ -68,7 +68,6 @@ fi
 echo "[launch] Running Steampipe..."
 python3 -m steampipe \
   --clips "$STEAM_CLIPS_DIR" \
-  --upload \
   --privacy "$PRIVACY" \
   --discord "$DISCORD_WEBHOOK" \
   --discord-name "$DISCORD_NAME" \
